@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -85,6 +83,7 @@ public class CardHandler : MonoBehaviour
             || _attackText == null
             || _manaText == null)
         {
+            Debug.LogWarning("some of references is null");
             enabled = false;
             return false;
         }
