@@ -17,7 +17,10 @@ public class HandLayoutGroup : LayoutGroup
     protected float _parabolaPow = 2f;
 
     [SerializeField]
-    protected float _parabolaRotationCoef = 1f;
+    protected float _cardRotationCoef = 1f;
+
+    [SerializeField]
+    protected float _cardRotationCorrection = 0f;
 
 
     public float Spacing { get => _spacing; set => SetProperty(ref _spacing, value); }
@@ -28,19 +31,21 @@ public class HandLayoutGroup : LayoutGroup
 
     public float ParabolaPow { get => _parabolaPow; set => SetProperty(ref _parabolaPow, value); }
 
-    public float ParabolaRotationCoef { get => _parabolaRotationCoef; set => SetProperty(ref _parabolaRotationCoef, value); }
+    public float CardRotationCoef { get => _cardRotationCoef; set => SetProperty(ref _cardRotationCoef, value); }
+
+    public float CardRotationCorrection { get => _cardRotationCorrection; set => SetProperty(ref _cardRotationCorrection, value); }
 
 
     public override void CalculateLayoutInputHorizontal()
     {
         base.CalculateLayoutInputHorizontal();
 
-        CalcAlongAxis(0, false);
+        //CalcAlongAxis(0, false);
     }
 
     public override void CalculateLayoutInputVertical()
     {
-        CalcAlongAxis(1, false);
+        //CalcAlongAxis(1, false);
     }
 
     public override void SetLayoutHorizontal()
@@ -109,9 +114,12 @@ public class HandLayoutGroup : LayoutGroup
         var innerSize = size - padding.horizontal;
         var allChildrenWidth = rectChildren.Sum(c => c.sizeDelta.x);
         var allChildrenWidthWithSpacing = allChildrenWidth + Spacing * (c - 1);
+        var lastChildWidth = rectChildren[c - 1].sizeDelta.x;
 
         var useSpacing = allChildrenWidthWithSpacing <= innerSize;
-        var overlapCoef = innerSize / allChildrenWidth;
+        var overlapCoef = allChildrenWidth <= innerSize
+            ? innerSize / allChildrenWidth
+            : (innerSize - lastChildWidth) / (allChildrenWidth - lastChildWidth);
 
         var pos = GetStartOffset(0, Mathf.Min(innerSize, allChildrenWidthWithSpacing));
 
@@ -125,7 +133,12 @@ public class HandLayoutGroup : LayoutGroup
             //child.rotation = Quaternion.Euler(0, 0, GetArcRotation(i, c, AngleDeg));
 
             // parabola
-            child.rotation = Quaternion.Euler(0, 0, GetParabolaRotation(i, c, _parabolaPow, ParabolaRotationCoef));
+            var zAngle =
+                //useSpacing
+                //? 0
+                //: 
+                GetParabolaRotation(i, c, _parabolaPow, CardRotationCoef);
+            child.rotation = Quaternion.Euler(0, 0, zAngle + CardRotationCorrection);
 
             var childWidth = child.sizeDelta.x;
             if (childWidth == 0)
@@ -163,6 +176,8 @@ public class HandLayoutGroup : LayoutGroup
             }
 
             var startOffset = GetStartOffset(1, minHeightForParabola + maxChildHeight);
+
+            // arrange children by Y to make an arc
 
             // Arc Y
             //startOffset -= GetArcDelta(i, c, AngleDeg, rectTransform.rect.width).y;
@@ -204,6 +219,11 @@ public class HandLayoutGroup : LayoutGroup
 
     private static float GetParabolaY(int currentIndex, int count, float pow, float height)
     {
+        if (count <= 1)
+        {
+            return height;
+        }    
+
         var median = (count - 1f) / 2f;
         var symmetricIndex = currentIndex - median;
         var y = height * Mathf.Pow(Mathf.Abs(symmetricIndex / median), pow);
