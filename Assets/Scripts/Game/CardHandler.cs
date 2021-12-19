@@ -36,6 +36,11 @@ namespace CardsInHand.Scripts.Game
         public (int width, int height) GetPortraitSize() =>
             GetRectTransformSize(_portraitImage.rectTransform);
 
+        public void Die()
+        {
+            Destroy(gameObject);
+        }
+
 
         private void Awake()
         {
@@ -55,7 +60,7 @@ namespace CardsInHand.Scripts.Game
                     ReloadCardDescription();
                     break;
                 case nameof(Card.Hp):
-                    ReloadCardHp();
+                    CheckOrReloadCardHp();
                     break;
                 case nameof(Card.Attack):
                     ReloadCardAttack();
@@ -82,7 +87,7 @@ namespace CardsInHand.Scripts.Game
             ReloadCardTitle();
             ReloadCardDescription();
             
-            ReloadCardHp();
+            CheckOrReloadCardHp();
             ReloadCardAttack();
             ReloadCardMana();
 
@@ -93,7 +98,17 @@ namespace CardsInHand.Scripts.Game
 
         private void ReloadCardDescription() => _descriptionText.text = Card.Description;
 
-        private void ReloadCardHp() => _hpText.text = Card.Hp.ToString();
+        private void CheckOrReloadCardHp()
+        {
+            if (Card.Hp < 1)
+            {
+                Die();
+            }
+            else
+            {
+                _hpText.text = Card.Hp.ToString();
+            }
+        }
 
         private void ReloadCardAttack() => _attackText.text = Card.Attack.ToString();
 
