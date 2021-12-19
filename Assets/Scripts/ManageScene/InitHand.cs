@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using CardsInHand.Scripts.Game;
 using CardsInHand.Scripts.Utility;
+using CardsInHand.Scripts.Web;
 using UnityEngine;
 
 namespace CardsInHand.Scripts.ManageScene
@@ -72,6 +73,7 @@ namespace CardsInHand.Scripts.ManageScene
                 cardHandler.Card.Hp = RandomExtensions.RangeInclusive(_paramBoundaries.from, _paramBoundaries.to);
                 cardHandler.Card.Attack = RandomExtensions.RangeInclusive(_paramBoundaries.from, _paramBoundaries.to);
                 cardHandler.Card.Mana = RandomExtensions.RangeInclusive(_paramBoundaries.from, _paramBoundaries.to);
+                SetUpCardPortrait(cardHandler);
             }
 
             string PickWords(int from, int to)
@@ -93,6 +95,21 @@ namespace CardsInHand.Scripts.ManageScene
                 children.ForEach(c => Destroy(c));
                 children.Clear();
             }
+
+            void SetUpCardPortrait(CardHandler cardHandler)
+            {
+                var imageSize = cardHandler.GetPortraitSize();
+                var url = $"https://picsum.photos/{imageSize.width}/{imageSize.height}";
+                WebRequestProvider.GetTexture(
+                    url,
+                    (err) => Debug.LogWarning(err),
+                    (tx2) =>
+                    {
+                        cardHandler.Card.Portrait = tx2;
+                    });
+            }
+
         }
+
     }
 }

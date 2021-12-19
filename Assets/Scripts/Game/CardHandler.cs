@@ -25,24 +25,24 @@ namespace CardsInHand.Scripts.Game
         [SerializeField]
         private Text _manaText;
 
+        [SerializeField]
+        private Image _portraitImage;
 
-        //public Text TitleText { get => _titleText; set => _titleText = value; }
-
-        //public Text DescriptionText { get => _descriptionText; set => _descriptionText = value; }
-
-        //public Text HpText { get => _hpText; set => _hpText = value; }
-
-        //public Text AttackText { get => _attackText; set => _attackText = value; }
-
-        //public Text ManaText { get => _manaText; set => _manaText = value; }
+        private string _portraitSpriteName;
 
 
         public Card Card { get => _card; set => _card = value; }
 
 
+        public (int width, int height) GetPortraitSize() =>
+            GetRectTransformSize(_portraitImage.rectTransform);
+
+
         private void Awake()
         {
             AssertReferences();
+
+            _portraitSpriteName = _portraitImage.sprite.name;
         }
 
         private void Update()
@@ -53,11 +53,10 @@ namespace CardsInHand.Scripts.Game
             _attackText.text = _card.Attack.ToString();
             _manaText.text = _card.Mana.ToString();
 
-            //TitleText.text = card.Title;
-            //DescriptionText.text = card.Description;
-            //HpText.text = card.Hp.ToString();
-            //AttackText.text = card.Attack.ToString();
-            //ManaText.text = card.Mana.ToString();
+            if (_card.Portrait != null && _portraitImage.sprite.name == _portraitSpriteName)
+            {
+                _portraitImage.sprite = Sprite.Create(Card.Portrait, CreateRectFromImage(_portraitImage), new Vector2(.5f, .5f));
+            }
         }
 
         private bool AssertReferences()
@@ -66,7 +65,8 @@ namespace CardsInHand.Scripts.Game
                 || _descriptionText == null
                 || _hpText == null
                 || _attackText == null
-                || _manaText == null)
+                || _manaText == null
+                || _portraitImage == null)
             {
                 Debug.LogWarning("some of references is null");
                 enabled = false;
@@ -74,6 +74,15 @@ namespace CardsInHand.Scripts.Game
             }
 
             return true;
+        }
+
+        private (int width, int height) GetRectTransformSize(RectTransform rectTransform) =>
+            ((int)rectTransform.rect.width, (int)rectTransform.rect.height);
+
+        private Rect CreateRectFromImage(Image image)
+        {
+            var (w, h) = GetRectTransformSize(image.rectTransform);
+            return new Rect(0, 0, w, h);
         }
     }
 }

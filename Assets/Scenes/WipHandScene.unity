@@ -388,7 +388,7 @@ Camera:
   m_GameObject: {fileID: 649214775}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
+  m_ClearFlags: 2
   m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
@@ -682,7 +682,7 @@ Camera:
   m_GameObject: {fileID: 972627224}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
+  m_ClearFlags: 4
   m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
@@ -773,8 +773,8 @@ MonoBehaviour:
   _spacing: 10
   _parabolaHeight: 80
   _parabolaPow: 2
-  _cardRotationCoef: 0.6
-  _cardRotationCorrection: -8.5
+  _cardRotationCoef: 0.4
+  _cardRotationCorrection: -12
 --- !u!1 &1378728378
 GameObject:
   m_ObjectHideFlags: 0

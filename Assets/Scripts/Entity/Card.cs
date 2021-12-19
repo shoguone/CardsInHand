@@ -23,7 +23,8 @@ namespace CardsInHand.Scripts.Entity
 
         //private string _back;
 
-        //private string _portrait;
+        [SerializeField]
+        private Texture2D _portrait;
 
 
         public string Title { get => _title; set => _title = value; }
@@ -35,6 +36,8 @@ namespace CardsInHand.Scripts.Entity
         public int Attack { get => _attack; set => _attack = value > 0 ? value : 0; }
 
         public int Mana { get => _mana; set => _mana = value > 0 ? value : 0; }
+
+        public Texture2D Portrait { get => _portrait; set => _portrait = value; }
 
     }
 }
