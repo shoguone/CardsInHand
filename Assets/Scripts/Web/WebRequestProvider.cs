@@ -33,7 +33,7 @@ namespace CardsInHand.Scripts.Web
 
         private static IEnumerator GetCoroutine(string url, Action<string> onError, Action<string> onSuccess)
         {
-            Debug.Log("GET: " + url);
+            //Debug.Log("GET: " + url);
             using (var uwr = UnityWebRequest.Get(url))
             {
                 yield return uwr.SendWebRequest();
@@ -58,7 +58,7 @@ namespace CardsInHand.Scripts.Web
 
         private static IEnumerator GetTextureCoroutine(string url, Action<string> onError, Action<Texture2D> onSuccess)
         {
-            Debug.Log("GET texture: " + url);
+            //Debug.Log("GET texture: " + url);
             using (var uwr = UnityWebRequestTexture.GetTexture(url))
             {
                 yield return uwr.SendWebRequest();

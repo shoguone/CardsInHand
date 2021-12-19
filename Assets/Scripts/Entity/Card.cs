@@ -1,10 +1,12 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace CardsInHand.Scripts.Entity
 {
     [Serializable]
-    public class Card
+    public class Card : INotifyPropertyChanged
     {
         [SerializeField]
         private string _title = "Egg";
@@ -21,23 +23,104 @@ namespace CardsInHand.Scripts.Entity
         [SerializeField]
         private int _mana = 6;
 
-        //private string _back;
-
         [SerializeField]
         private Texture2D _portrait;
 
 
-        public string Title { get => _title; set => _title = value; }
+        public string Title
+        {
+            get => _title;
+            set
+            {
+                if (value == _title)
+                {
+                    return;
+                }
 
-        public string Description { get => _description; set => _description = value; }
+                _title = value;
+                OnPropertyChanged();
+            }
+        }
 
-        public int Hp { get => _hp; set => _hp = value > 0 ? value : 0; }
+        public string Description
+        {
+            get => _description;
+            set
+            {
+                if (value == _description)
+                {
+                    return;
+                }
 
-        public int Attack { get => _attack; set => _attack = value > 0 ? value : 0; }
+                _description = value;
+                OnPropertyChanged();
+            }
+        }
 
-        public int Mana { get => _mana; set => _mana = value > 0 ? value : 0; }
+        public int Hp
+        {
+            get => _hp;
+            set
+            {
+                if (value == _hp)
+                {
+                    return;
+                }
 
-        public Texture2D Portrait { get => _portrait; set => _portrait = value; }
+                _hp = value > 0 ? value : 0;
+                OnPropertyChanged();
+            }
+        }
 
+        public int Attack
+        {
+            get => _attack;
+            set
+            {
+                if (value == _attack)
+                {
+                    return;
+                }
+
+                _attack = value > 0 ? value : 0;
+                OnPropertyChanged();
+            }
+        }
+
+        public int Mana
+        {
+            get => _mana;
+            set
+            {
+                if (value == _mana)
+                {
+                    return;
+                }
+
+                _mana = value > 0 ? value : 0;
+                OnPropertyChanged();
+            }
+        }
+
+        public Texture2D Portrait
+        {
+            get => _portrait;
+            set
+            {
+                if (value == _portrait)
+                {
+                    return;
+                }
+
+                _portrait = value;
+                OnPropertyChanged();
+            }
+        }
+
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

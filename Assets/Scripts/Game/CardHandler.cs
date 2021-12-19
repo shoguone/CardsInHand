@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using CardsInHand.Scripts.Entity;
 using UnityEngine;
 using UnityEngine.UI;
@@ -28,8 +29,6 @@ namespace CardsInHand.Scripts.Game
         [SerializeField]
         private Image _portraitImage;
 
-        private string _portraitSpriteName;
-
 
         public Card Card { get => _card; set => _card = value; }
 
@@ -42,22 +41,72 @@ namespace CardsInHand.Scripts.Game
         {
             AssertReferences();
 
-            _portraitSpriteName = _portraitImage.sprite.name;
+            Card.PropertyChanged += Card_PropertyChanged;
         }
 
-        private void Update()
+        private void Card_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            _titleText.text = _card.Title;
-            _descriptionText.text = _card.Description;
-            _hpText.text = _card.Hp.ToString();
-            _attackText.text = _card.Attack.ToString();
-            _manaText.text = _card.Mana.ToString();
+            switch (e.PropertyName)
+            {
+                case nameof(Card.Title):
+                    ReloadCardTitle();
+                    break;
+                case nameof(Card.Description):
+                    ReloadCardDescription();
+                    break;
+                case nameof(Card.Hp):
+                    ReloadCardHp();
+                    break;
+                case nameof(Card.Attack):
+                    ReloadCardAttack();
+                    break;
+                case nameof(Card.Mana):
+                    ReloadCardMana();
+                    break;
+                case nameof(Card.Portrait):
+                    ReloadCardPortrait();
+                    break;
+                default:
+                    Reload();
+                    break;
+            }
+        }
 
-            if (_card.Portrait != null && _portraitImage.sprite.name == _portraitSpriteName)
+        private void OnValidate()
+        {
+            Reload();
+        }
+
+        private void Reload()
+        {
+            ReloadCardTitle();
+            ReloadCardDescription();
+            
+            ReloadCardHp();
+            ReloadCardAttack();
+            ReloadCardMana();
+
+            ReloadCardPortrait();
+        }
+
+        private void ReloadCardTitle() => _titleText.text = Card.Title;
+
+        private void ReloadCardDescription() => _descriptionText.text = Card.Description;
+
+        private void ReloadCardHp() => _hpText.text = Card.Hp.ToString();
+
+        private void ReloadCardAttack() => _attackText.text = Card.Attack.ToString();
+
+        private void ReloadCardMana() => _manaText.text = Card.Mana.ToString();
+
+        private void ReloadCardPortrait()
+        {
+            if (Card.Portrait != null)
             {
                 _portraitImage.sprite = Sprite.Create(Card.Portrait, CreateRectFromImage(_portraitImage), new Vector2(.5f, .5f));
             }
         }
+
 
         private bool AssertReferences()
         {
@@ -68,7 +117,7 @@ namespace CardsInHand.Scripts.Game
                 || _manaText == null
                 || _portraitImage == null)
             {
-                Debug.LogWarning("some of references is null");
+                Debug.LogWarning("some of references are null");
                 enabled = false;
                 return false;
             }
