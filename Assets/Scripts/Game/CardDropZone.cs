@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+﻿using DG.Tweening;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace Assets.Scripts.Game
+namespace CardsInHand.Scripts.Game
 {
     public class CardDropZone : MonoBehaviour, IDropHandler
     {
@@ -16,6 +17,7 @@ namespace Assets.Scripts.Game
             var cardDrag = cardGo.GetComponent<CardDragDrop>();
             if (cardDrag != null)
             {
+                cardDrag.Drop();
                 cardDrag.enabled = false;
             }
 
@@ -30,9 +32,10 @@ namespace Assets.Scripts.Game
             {
                 return;
             }
-
+            
             cardRectTrf.SetParent(rectTransform);
-            cardRectTrf.rotation = Quaternion.Euler(Vector3.zero);
+            cardRectTrf.DORotateQuaternion(Quaternion.identity, .5f);
+            //cardRectTrf.rotation = Quaternion.identity;
         }
     }
 }

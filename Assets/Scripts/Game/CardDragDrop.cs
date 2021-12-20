@@ -1,10 +1,12 @@
-﻿using UnityEngine;
+﻿using DG.Tweening;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace Assets.Scripts.Game
+namespace CardsInHand.Scripts.Game
 {
     [RequireComponent(typeof(CanvasGroup))]
     public class CardDragDrop : MonoBehaviour,
+        IPointerDownHandler, IPointerUpHandler,
         IBeginDragHandler, IEndDragHandler, IDragHandler
     {
         private RectTransform _cardTrf;
@@ -12,7 +14,9 @@ namespace Assets.Scripts.Game
         private Canvas _canvas;
 
         private Vector2 _startingAnchoredPosition;
+        private float _startingRotation;
         private bool _wasDropped = false;
+        private bool _wasReleased = false;
 
         private void Awake()
         {
@@ -32,7 +36,6 @@ namespace Assets.Scripts.Game
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            _startingAnchoredPosition = _cardTrf.anchoredPosition;
             _canvasGroup.blocksRaycasts = false;
         }
 
@@ -43,16 +46,44 @@ namespace Assets.Scripts.Game
 
         public void OnEndDrag(PointerEventData eventData)
         {
-            _canvasGroup.blocksRaycasts = true;
-            if (!_wasDropped)
-            {
-                _cardTrf.anchoredPosition = _startingAnchoredPosition;
-            }
+            ReleaseCard();
         }
 
         public void Drop()
         {
             _wasDropped = true;
+        }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            _wasReleased = false;
+
+            _startingAnchoredPosition = _cardTrf.anchoredPosition;
+            _startingRotation = _cardTrf.rotation.eulerAngles.z;
+            _cardTrf.DORotateQuaternion(Quaternion.identity, .5f);
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            ReleaseCard();
+        }
+
+        private void ReleaseCard()
+        {
+            if (_wasReleased)
+            {
+                return;
+            }
+
+            _wasReleased = true;
+            _canvasGroup.blocksRaycasts = true;
+            if (!_wasDropped)
+            {
+                //_cardTrf.anchoredPosition = _startingAnchoredPosition;
+                DOTween.Sequence()
+                    .Append(_cardTrf.DOAnchorPos(_startingAnchoredPosition, .5f))
+                    .Join(_cardTrf.DORotateQuaternion(Quaternion.Euler(0, 0, _startingRotation), .5f));
+            }
         }
     }
 }

@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -23,6 +25,11 @@ namespace CardsInHand.Scripts.UI
 
         [SerializeField]
         protected float _cardRotationCorrection = 0f;
+
+
+        [Header("Animation")]
+        [SerializeField]
+        protected float _animationDuration = .5f;
 
 
         public float Spacing { get => _spacing; set => SetProperty(ref _spacing, value); }
@@ -140,7 +147,9 @@ namespace CardsInHand.Scripts.UI
                     //? 0
                     //: 
                     GetParabolaRotation(i, c, _parabolaPow, CardRotationCoef);
-                child.rotation = Quaternion.Euler(0, 0, zAngle + CardRotationCorrection);
+
+                child.DORotateQuaternion(Quaternion.Euler(0, 0, zAngle + CardRotationCorrection), _animationDuration);
+                //child.rotation = Quaternion.Euler(0, 0, zAngle + CardRotationCorrection);
 
                 var childWidth = child.sizeDelta.x;
                 if (childWidth == 0)
@@ -148,7 +157,13 @@ namespace CardsInHand.Scripts.UI
                     childWidth = LayoutUtility.GetPreferredWidth(child);
                 }
 
-                SetChildAlongAxis(child, 0, pos, childWidth);
+                DOTween.To(
+                    () => child.anchoredPosition.x - childWidth * child.pivot.x,
+                    x => SetChildAlongAxis(child, 0, x, childWidth),
+                    pos,
+                    _animationDuration);
+                //SetChildAlongAxis(child, 0, pos, childWidth);
+
                 pos += useSpacing
                     ? childWidth + Spacing
                     : childWidth * overlapCoef;
