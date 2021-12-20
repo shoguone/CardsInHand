@@ -9,6 +9,7 @@ namespace CardsInHand.Scripts.Game
         IPointerDownHandler, IPointerUpHandler,
         IBeginDragHandler, IEndDragHandler, IDragHandler
     {
+        private CardHandler _cardHandler;
         private RectTransform _cardTrf;
         private CanvasGroup _canvasGroup;
         private Canvas _canvas;
@@ -20,6 +21,7 @@ namespace CardsInHand.Scripts.Game
 
         private void Awake()
         {
+            _cardHandler = GetComponent<CardHandler>();
             _cardTrf = GetComponent<RectTransform>();
             _canvasGroup = GetComponent<CanvasGroup>();
 
@@ -61,6 +63,8 @@ namespace CardsInHand.Scripts.Game
             _startingAnchoredPosition = _cardTrf.anchoredPosition;
             _startingRotation = _cardTrf.rotation.eulerAngles.z;
             _cardTrf.DORotateQuaternion(Quaternion.identity, .5f);
+
+            _cardHandler.Glow();
         }
 
         public void OnPointerUp(PointerEventData eventData)
@@ -83,6 +87,8 @@ namespace CardsInHand.Scripts.Game
                 DOTween.Sequence()
                     .Append(_cardTrf.DOAnchorPos(_startingAnchoredPosition, .5f))
                     .Join(_cardTrf.DORotateQuaternion(Quaternion.Euler(0, 0, _startingRotation), .5f));
+                
+                _cardHandler.Glow(false);
             }
         }
     }
