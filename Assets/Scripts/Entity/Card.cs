@@ -82,7 +82,8 @@ namespace CardsInHand.Scripts.Entity
                     return;
                 }
 
-                _attack = value > 0 ? value : 0;
+                _attack = value;
+                //_attack = value > 0 ? value : 0;
                 OnPropertyChanged();
             }
         }
@@ -97,7 +98,8 @@ namespace CardsInHand.Scripts.Entity
                     return;
                 }
 
-                _mana = value > 0 ? value : 0;
+                _mana = value;
+                //_mana = value > 0 ? value : 0;
                 OnPropertyChanged();
             }
         }

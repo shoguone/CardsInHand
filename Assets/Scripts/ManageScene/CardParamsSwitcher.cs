@@ -10,7 +10,7 @@ namespace CardsInHand.Scripts.ManageScene
         [SerializeField]
         private Transform _handContainer;
 
-        private (int from, int to) _paramBoundaries = (2, 9);
+        private (int from, int to) _paramBoundaries = (-2, 9);
 
         private int _lastChildIndex = -1;
 
@@ -39,20 +39,33 @@ namespace CardsInHand.Scripts.ManageScene
             else
             {
                 var param = (CardParameter)RandomExtensions.RangeInclusive((int)CardParameter.Hp, (int)CardParameter.Mana);
+                var value = RandomExtensions.RangeInclusive(_paramBoundaries.from, _paramBoundaries.to);
                 switch (param)
                 {
                     case CardParameter.Hp:
-                        cardHandler.Card.Hp = RandomExtensions.RangeInclusive(_paramBoundaries.from, _paramBoundaries.to);
+                        cardHandler.Card.Hp = GenerateRandomParam(cardHandler.Card.Hp);
                         break;
                     case CardParameter.Attack:
-                        cardHandler.Card.Attack = RandomExtensions.RangeInclusive(_paramBoundaries.from, _paramBoundaries.to);
+                        cardHandler.Card.Attack = GenerateRandomParam(cardHandler.Card.Attack);
                         break;
                     case CardParameter.Mana:
-                        cardHandler.Card.Mana = RandomExtensions.RangeInclusive(_paramBoundaries.from, _paramBoundaries.to);
+                        cardHandler.Card.Mana = GenerateRandomParam(cardHandler.Card.Mana);
                         break;
                     default:
                         Debug.LogWarning($"Unknown {nameof(CardParameter)} value: {param}");
                         break;
+                }
+            }
+
+            int GenerateRandomParam(int current)
+            {
+                while (true)
+                {
+                    var value = RandomExtensions.RangeInclusive(_paramBoundaries.from, _paramBoundaries.to);
+                    if (current != value)
+                    {
+                        return value;
+                    }
                 }
             }
         }
