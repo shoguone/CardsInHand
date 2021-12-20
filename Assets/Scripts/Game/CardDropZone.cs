@@ -17,8 +17,7 @@ namespace CardsInHand.Scripts.Game
             var cardDrag = cardGo.GetComponent<CardDragDrop>();
             if (cardDrag != null)
             {
-                cardDrag.Drop();
-                cardDrag.enabled = false;
+                cardDrag.DropToTable();
             }
 
             var cardRectTrf = cardGo.GetComponent<RectTransform>();

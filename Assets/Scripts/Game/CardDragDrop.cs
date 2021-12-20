@@ -16,8 +16,7 @@ namespace CardsInHand.Scripts.Game
 
         private Vector2 _startingAnchoredPosition;
         private float _startingRotation;
-        private bool _wasDropped = false;
-        private bool _wasReleased = false;
+        private bool _isDragging = false;
 
         private void Awake()
         {
@@ -38,6 +37,7 @@ namespace CardsInHand.Scripts.Game
 
         public void OnBeginDrag(PointerEventData eventData)
         {
+            _isDragging = true;
             _canvasGroup.blocksRaycasts = false;
         }
 
@@ -48,18 +48,19 @@ namespace CardsInHand.Scripts.Game
 
         public void OnEndDrag(PointerEventData eventData)
         {
+            _isDragging = false;
             ReleaseCard();
         }
 
-        public void Drop()
+        public void DropToTable()
         {
-            _wasDropped = true;
+            _isDragging = false;
+            ReleaseCard(false);
+            enabled = false;
         }
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            _wasReleased = false;
-
             _startingAnchoredPosition = _cardTrf.anchoredPosition;
             _startingRotation = _cardTrf.rotation.eulerAngles.z;
             _cardTrf.DORotateQuaternion(Quaternion.identity, .5f);
@@ -69,27 +70,24 @@ namespace CardsInHand.Scripts.Game
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            ReleaseCard();
+            if (!_isDragging)
+            {
+                ReleaseCard();
+            }
         }
 
-        private void ReleaseCard()
+        private void ReleaseCard(bool animate = true)
         {
-            if (_wasReleased)
-            {
-                return;
-            }
-
-            _wasReleased = true;
             _canvasGroup.blocksRaycasts = true;
-            if (!_wasDropped)
+            if (animate)
             {
                 //_cardTrf.anchoredPosition = _startingAnchoredPosition;
                 DOTween.Sequence()
                     .Append(_cardTrf.DOAnchorPos(_startingAnchoredPosition, .5f))
                     .Join(_cardTrf.DORotateQuaternion(Quaternion.Euler(0, 0, _startingRotation), .5f));
-                
-                _cardHandler.Glow(false);
             }
+
+            _cardHandler.Glow(false);
         }
     }
 }
