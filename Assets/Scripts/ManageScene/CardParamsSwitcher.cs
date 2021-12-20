@@ -1,4 +1,5 @@
-﻿using CardsInHand.Scripts.Game;
+﻿using CardsInHand.Scripts.Entity;
+using CardsInHand.Scripts.Game;
 using CardsInHand.Scripts.Utility;
 using UnityEngine;
 
@@ -55,12 +56,5 @@ namespace CardsInHand.Scripts.ManageScene
                 }
             }
         }
-    }
-
-    public enum CardParameter
-    {
-        Hp = 0,
-        Attack,
-        Mana,
     }
 }

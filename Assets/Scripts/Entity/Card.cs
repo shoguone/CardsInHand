@@ -120,7 +120,25 @@ namespace CardsInHand.Scripts.Entity
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public int GetParameter(CardParameter cardParameter)
+        {
+            switch (cardParameter)
+            {
+                case CardParameter.Hp: return Hp;
+                case CardParameter.Attack: return Attack;
+                case CardParameter.Mana: return Mana;
+                default: return -1;
+            }
+        }
+
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    public enum CardParameter
+    {
+        Hp = 0,
+        Attack,
+        Mana,
     }
 }
