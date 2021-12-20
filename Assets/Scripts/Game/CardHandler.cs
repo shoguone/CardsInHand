@@ -182,7 +182,18 @@ namespace CardsInHand.Scripts.Game
 
             if (newValue == lastValue)
             {
-                return;
+                if (text.text != newValue.ToString())
+                {
+                    if (!int.TryParse(text.text, out lastValue))
+                    {
+                        text.text = newValue.ToString();
+                        return;
+                    }
+                }
+                else
+                {
+                    return;
+                }
             }
 
             if (Application.isPlaying)
