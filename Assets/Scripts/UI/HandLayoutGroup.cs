@@ -1,4 +1,6 @@
-using System.Collections.Generic;
+// we can switch arc shape between based on circle or parabola 
+#define ARC_AS_PARABOLA
+
 using System.Linq;
 using DG.Tweening;
 using UnityEngine;
@@ -11,17 +13,19 @@ namespace CardsInHand.Scripts.UI
         [SerializeField]
         protected float _spacing = 0f;
 
-        //[SerializeField]
-        //protected float _angleDeg = 20f;
-
         [SerializeField]
-        protected float _parabolaHeight = 200f;
+        protected float _arcHeight = 80f;
 
+#if ARC_AS_PARABOLA
         [SerializeField]
         protected float _parabolaPow = 2f;
 
         [SerializeField]
-        protected float _cardRotationCoef = 1f;
+        protected float _cardRotationCoef = .4f;
+#else
+        [SerializeField]
+        protected float _angleDeg = 40f;
+#endif
 
         [SerializeField]
         protected float _cardRotationCorrection = 0f;
@@ -34,27 +38,23 @@ namespace CardsInHand.Scripts.UI
 
         public float Spacing { get => _spacing; set => SetProperty(ref _spacing, value); }
 
-        //public float AngleDeg { get => _angleDeg; set => SetProperty(ref _angleDeg, value); }
+        public float ArcHeight { get => _arcHeight; set => SetProperty(ref _arcHeight, value); }
 
-        public float ParabolaHeight { get => _parabolaHeight; set => SetProperty(ref _parabolaHeight, value); }
+#if ARC_AS_PARABOLA
 
         public float ParabolaPow { get => _parabolaPow; set => SetProperty(ref _parabolaPow, value); }
 
+
         public float CardRotationCoef { get => _cardRotationCoef; set => SetProperty(ref _cardRotationCoef, value); }
+#else
+        public float AngleDeg { get => _angleDeg; set => SetProperty(ref _angleDeg, value); }
+#endif
 
         public float CardRotationCorrection { get => _cardRotationCorrection; set => SetProperty(ref _cardRotationCorrection, value); }
 
 
-        public override void CalculateLayoutInputHorizontal()
-        {
-            base.CalculateLayoutInputHorizontal();
-
-            //CalcAlongAxis(0, false);
-        }
-
         public override void CalculateLayoutInputVertical()
         {
-            //CalcAlongAxis(1, false);
         }
 
         public override void SetLayoutHorizontal()
@@ -67,50 +67,6 @@ namespace CardsInHand.Scripts.UI
             SetChildrenY();
         }
 
-        protected void CalcAlongAxis(int axis, bool isVertical)
-        {
-            float combinedPadding = (axis == 0 ? padding.horizontal : padding.vertical);
-
-            float totalMin = combinedPadding;
-            float totalPreferred = combinedPadding;
-            float totalFlexible = 0;
-
-            bool alongOtherAxis = (isVertical ^ (axis == 1));
-            for (int i = 0; i < rectChildren.Count; i++)
-            {
-                RectTransform child = rectChildren[i];
-                float min = LayoutUtility.GetMinSize(child, axis);
-                float preferred = LayoutUtility.GetPreferredSize(child, axis);
-                float flexible = LayoutUtility.GetFlexibleSize(child, axis);
-
-                //if ((axis == 0 ? childForceExpandWidth : childForceExpandHeight))
-                //    flexible = Mathf.Max(flexible, 1);
-
-                if (alongOtherAxis)
-                {
-                    totalMin = Mathf.Max(min + combinedPadding, totalMin);
-                    totalPreferred = Mathf.Max(preferred + combinedPadding, totalPreferred);
-                    totalFlexible = Mathf.Max(flexible, totalFlexible);
-                }
-                else
-                {
-                    totalMin += min + Spacing;
-                    totalPreferred += preferred + Spacing;
-
-                    // Increment flexible size with element's flexible size.
-                    totalFlexible += flexible;
-                }
-            }
-
-            if (!alongOtherAxis && rectChildren.Count > 0)
-            {
-                totalMin -= Spacing;
-                totalPreferred -= Spacing;
-            }
-            totalPreferred = Mathf.Max(totalMin, totalPreferred);
-            SetLayoutInputForAxis(totalMin, totalPreferred, totalFlexible, axis);
-        }
-
         protected void SetChildrenX()
         {
             var c = rectChildren.Count;
@@ -121,7 +77,7 @@ namespace CardsInHand.Scripts.UI
 
             var size = rectTransform.rect.width;
             var innerSize = size - padding.horizontal;
-            var allChildrenWidth = rectChildren.Sum(c => c.sizeDelta.x);
+            var allChildrenWidth = rectChildren.Sum(rt => rt.sizeDelta.x);
             var allChildrenWidthWithSpacing = allChildrenWidth + Spacing * (c - 1);
             var lastChildWidth = rectChildren[c - 1].sizeDelta.x;
 
@@ -137,19 +93,15 @@ namespace CardsInHand.Scripts.UI
                 var child = rectChildren[i];
 
                 // Rotation:
-
-                // circle (arc)
-                //child.rotation = Quaternion.Euler(0, 0, GetArcRotation(i, c, AngleDeg));
-
+#if ARC_AS_PARABOLA
                 // parabola
-                var zAngle =
-                    //useSpacing
-                    //? 0
-                    //: 
-                    GetParabolaRotation(i, c, _parabolaPow, CardRotationCoef);
+                var zAngle = GetParabolaRotation(i, c, ParabolaPow, CardRotationCoef);
+#else
+                // circle (arc)
+                var zAngle = GetArcRotation(i, c, AngleDeg);
+#endif
 
                 child.DORotateQuaternion(Quaternion.Euler(0, 0, zAngle + CardRotationCorrection), _animationDuration);
-                //child.rotation = Quaternion.Euler(0, 0, zAngle + CardRotationCorrection);
 
                 var childWidth = child.sizeDelta.x;
                 if (childWidth == 0)
@@ -162,7 +114,6 @@ namespace CardsInHand.Scripts.UI
                     x => SetChildAlongAxis(child, 0, x, childWidth),
                     pos,
                     _animationDuration);
-                //SetChildAlongAxis(child, 0, pos, childWidth);
 
                 pos += useSpacing
                     ? childWidth + Spacing
@@ -180,8 +131,8 @@ namespace CardsInHand.Scripts.UI
 
             var size = rectTransform.rect.height;
             var innerSize = size - padding.vertical;
-            var maxChildHeight = rectChildren.Max(c => c.sizeDelta.y);
-            var minHeightForParabola = Mathf.Min(innerSize - maxChildHeight, ParabolaHeight);
+            var maxChildHeight = rectChildren.Max(rt => rt.sizeDelta.y);
+            var minHeightForParabola = Mathf.Min(innerSize - maxChildHeight, ArcHeight);
 
             for (var i = 0; i < rectChildren.Count; i++)
             {
@@ -195,34 +146,20 @@ namespace CardsInHand.Scripts.UI
                 var startOffset = GetStartOffset(1, minHeightForParabola + maxChildHeight);
 
                 // arrange children by Y to make an arc
-
-                // Arc Y
-                //startOffset -= GetArcDelta(i, c, AngleDeg, rectTransform.rect.width).y;
-
+#if ARC_AS_PARABOLA
                 // Parabola's Y
-                startOffset += GetParabolaY(i, c, _parabolaPow, minHeightForParabola);
+                startOffset += GetParabolaY(i, c, ParabolaPow, minHeightForParabola);
+#else
+                // Arc Y
+                startOffset -= GetArcDelta(i, c, AngleDeg, rectTransform.rect.width).y;
+#endif
+
 
                 SetChildAlongAxis(child, 1, startOffset, childHeight);
             }
         }
 
-        private static float GetArcRotation(int currentIndex, int count, float angleDeg) =>
-            angleDeg / 2 - angleDeg / (count - 1) * currentIndex;
-
-        private static Vector2 GetArcDelta(int currentIndex, int count, float angleDeg, float width)
-        {
-            var angleRad = angleDeg * Mathf.Deg2Rad;
-            var alpha = angleRad / 2;
-            var gama = angleRad * currentIndex / (count - 1);
-            var beta = alpha - gama;
-            var omega = (Mathf.PI - alpha - beta) / 2;
-            var r = width / (2 * Mathf.Sin(alpha));
-            var l = gama * r;
-            var dx = l * Mathf.Sin(omega);
-            var dy = l * Mathf.Cos(omega);
-            return new Vector2(dx, dy);
-        }
-
+#if ARC_AS_PARABOLA
         private static float GetParabolaRotation(int currentIndex, int count, float pow, float correction)
         {
             // We can use tangents for parabola which is 1st derivative of the function
@@ -246,6 +183,23 @@ namespace CardsInHand.Scripts.UI
             var y = height * Mathf.Pow(Mathf.Abs(symmetricIndex / median), pow);
             return y;
         }
+#else
+        private static float GetArcRotation(int currentIndex, int count, float angleDeg) =>
+            angleDeg / 2 - angleDeg / (count - 1) * currentIndex;
 
+        private static Vector2 GetArcDelta(int currentIndex, int count, float angleDeg, float width)
+        {
+            var angleRad = angleDeg * Mathf.Deg2Rad;
+            var alpha = angleRad / 2;
+            var gama = angleRad * currentIndex / (count - 1);
+            var beta = alpha - gama;
+            var omega = (Mathf.PI - alpha - beta) / 2;
+            var r = width / (2 * Mathf.Sin(alpha));
+            var l = gama * r;
+            var dx = l * Mathf.Sin(omega);
+            var dy = l * Mathf.Cos(omega);
+            return new Vector2(dx, dy);
+        }
+#endif
     }
 }

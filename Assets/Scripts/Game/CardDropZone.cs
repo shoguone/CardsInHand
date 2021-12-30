@@ -34,7 +34,6 @@ namespace CardsInHand.Scripts.Game
             
             cardRectTrf.SetParent(rectTransform);
             cardRectTrf.DORotateQuaternion(Quaternion.identity, .5f);
-            //cardRectTrf.rotation = Quaternion.identity;
         }
     }
 }

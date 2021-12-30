@@ -81,7 +81,6 @@ namespace CardsInHand.Scripts.Game
             _canvasGroup.blocksRaycasts = true;
             if (animate)
             {
-                //_cardTrf.anchoredPosition = _startingAnchoredPosition;
                 DOTween.Sequence()
                     .Append(_cardTrf.DOAnchorPos(_startingAnchoredPosition, .5f))
                     .Join(_cardTrf.DORotateQuaternion(Quaternion.Euler(0, 0, _startingRotation), .5f));

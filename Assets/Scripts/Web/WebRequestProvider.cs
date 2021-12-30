@@ -31,55 +31,49 @@ namespace CardsInHand.Scripts.Web
             WebRequestHelperSingleton.StartCoroutine(GetCoroutine(url, onError, onSuccess));
         }
 
-        private static IEnumerator GetCoroutine(string url, Action<string> onError, Action<string> onSuccess)
-        {
-            //Debug.Log("GET: " + url);
-            using (var uwr = UnityWebRequest.Get(url))
-            {
-                yield return uwr.SendWebRequest();
-
-                if (uwr.result == UnityWebRequest.Result.ConnectionError
-                    || uwr.result == UnityWebRequest.Result.DataProcessingError
-                    || uwr.result == UnityWebRequest.Result.ProtocolError)
-                {
-                    onError(uwr.error);
-                }
-                else
-                {
-                    onSuccess(uwr.downloadHandler.text);
-                }
-            }
-        }
-
         public static void GetTexture(string url, Action<string> onError, Action<Texture2D> onSuccess)
         {
             WebRequestHelperSingleton.StartCoroutine(GetTextureCoroutine(url, onError, onSuccess));
         }
 
+        private static IEnumerator GetCoroutine(string url, Action<string> onError, Action<string> onSuccess)
+        {
+            using var uwr = UnityWebRequest.Get(url);
+            yield return uwr.SendWebRequest();
+
+            if (uwr.result == UnityWebRequest.Result.ConnectionError
+                || uwr.result == UnityWebRequest.Result.DataProcessingError
+                || uwr.result == UnityWebRequest.Result.ProtocolError)
+            {
+                onError(uwr.error);
+            }
+            else
+            {
+                onSuccess(uwr.downloadHandler.text);
+            }
+        }
+
         private static IEnumerator GetTextureCoroutine(string url, Action<string> onError, Action<Texture2D> onSuccess)
         {
-            //Debug.Log("GET texture: " + url);
-            using (var uwr = UnityWebRequestTexture.GetTexture(url))
-            {
-                yield return uwr.SendWebRequest();
+            using var uwr = UnityWebRequestTexture.GetTexture(url);
+            yield return uwr.SendWebRequest();
 
-                if (uwr.result == UnityWebRequest.Result.ConnectionError
-                    || uwr.result == UnityWebRequest.Result.DataProcessingError
-                    || uwr.result == UnityWebRequest.Result.ProtocolError)
+            if (uwr.result == UnityWebRequest.Result.ConnectionError
+                || uwr.result == UnityWebRequest.Result.DataProcessingError
+                || uwr.result == UnityWebRequest.Result.ProtocolError)
+            {
+                onError(uwr.error);
+            }
+            else
+            {
+                var handlerTexture = uwr.downloadHandler as DownloadHandlerTexture;
+                if (handlerTexture == null)
                 {
-                    onError(uwr.error);
+                    onError($"{nameof(UnityWebRequest.downloadHandler)} is not {nameof(DownloadHandlerTexture)}!");
                 }
                 else
                 {
-                    var handlerTexture = uwr.downloadHandler as DownloadHandlerTexture;
-                    if (handlerTexture == null)
-                    {
-                        onError($"{nameof(UnityWebRequest.downloadHandler)} is not {nameof(DownloadHandlerTexture)}!");
-                    }
-                    else
-                    {
-                        onSuccess(handlerTexture.texture);
-                    }
+                    onSuccess(handlerTexture.texture);
                 }
             }
         }

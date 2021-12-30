@@ -55,17 +55,12 @@ namespace CardsInHand.Scripts.Game
         {
             get
             {
-                if (_cardParamsDict == null)
+                return _cardParamsDict ??= new Dictionary<CardParameter, (Text text, int lastValue)>
                 {
-                    _cardParamsDict = new Dictionary<CardParameter, (Text text, int lastValue)>
-                    {
-                        { CardParameter.Hp, (_hpText, Card.Hp) },
-                        { CardParameter.Attack, (_attackText, Card.Attack) },
-                        { CardParameter.Mana, (_manaText, Card.Mana) },
-                    };
-                }
-
-                return _cardParamsDict;
+                    {CardParameter.Hp, (_hpText, Card.Hp)},
+                    {CardParameter.Attack, (_attackText, Card.Attack)},
+                    {CardParameter.Mana, (_manaText, Card.Mana)},
+                };
             }
         }
 
@@ -101,7 +96,7 @@ namespace CardsInHand.Scripts.Game
             // if we run Reload immediate, we get a Warning:
             // "SendMessage cannot be called during Awake, CheckConsistency, or OnValidate"
             // if we delay this call, Text.text is not updated in editor until the next change occurred
-            //UnityEditor.EditorApplication.delayCall += () => Reload();
+            // UnityEditor.EditorApplication.delayCall += () => Reload();
             Reload();
         }
 
@@ -247,10 +242,13 @@ namespace CardsInHand.Scripts.Game
             return true;
         }
 
-        private (int width, int height) GetRectTransformSize(RectTransform rectTransform) =>
-            ((int)rectTransform.rect.width, (int)rectTransform.rect.height);
+        private static (int width, int height) GetRectSize(Rect rect) =>
+            ((int)rect.width, (int)rect.height);
 
-        private Rect CreateRectFromImage(Image image)
+        private static (int width, int height) GetRectTransformSize(RectTransform rectTransform) =>
+            GetRectSize(rectTransform.rect);
+
+        private static Rect CreateRectFromImage(Graphic image)
         {
             var (w, h) = GetRectTransformSize(image.rectTransform);
             return new Rect(0, 0, w, h);

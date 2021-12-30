@@ -10,21 +10,33 @@ namespace CardsInHand.Scripts.ManageScene
 {
     public class InitHand : MonoBehaviour
     {
-        private const string _loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
-
-
         [SerializeField]
         private GameObject _cardPrefab;
 
         [SerializeField]
         private Transform _handContainer;
 
+        [Header("Randomization")]
+        [SerializeField]
+        [TextArea(2, 5)]
+        private string _loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
 
-        private readonly string[] _words = Regex.Replace(_loremIpsum, @"[^\w\s]", string.Empty).Split(' ');
-        private (int from, int to) _cardsInHand = (4, 6);
-        private (int from, int to) _titleBoundaries = (1, 2);
-        private (int from, int to) _descrBoundaries = (3, 7);
-        private (int from, int to) _paramBoundaries = (2, 9);
+        [SerializeField]
+        private ParamsInterval _cardsInHand = new ParamsInterval(4, 6);
+        
+        [SerializeField]
+        private ParamsInterval _titleBoundaries = new ParamsInterval(1, 2);
+        
+        [SerializeField]
+        private ParamsInterval _descrBoundaries = new ParamsInterval(3, 7);
+        
+        [SerializeField]
+        private ParamsInterval _paramBoundaries = new ParamsInterval(2, 9);
+        
+
+        private string[] _words;
+
+        private string[] Words => _words ??= Regex.Replace(_loremIpsum, @"[^\w\s]", string.Empty).Split(' ');
 
         private void Awake()
         {
@@ -46,7 +58,7 @@ namespace CardsInHand.Scripts.ManageScene
                 ClearHand();
             }
 
-            var cardsCount = RandomExtensions.RangeInclusive(_cardsInHand.from, _cardsInHand.to);
+            var cardsCount = RandomExtensions.RangeInclusive(_cardsInHand.From, _cardsInHand.To);
             for (var i = 0; i < cardsCount; i++)
             {
                 var cardHandler = CreateCardInHand();
@@ -68,19 +80,19 @@ namespace CardsInHand.Scripts.ManageScene
 
             void SetUpCard(CardHandler cardHandler)
             {
-                cardHandler.Card.Title = PickWords(_titleBoundaries.from, _titleBoundaries.to);
-                cardHandler.Card.Description = PickWords(_descrBoundaries.from, _descrBoundaries.to);
-                cardHandler.Card.Hp = RandomExtensions.RangeInclusive(_paramBoundaries.from, _paramBoundaries.to);
-                cardHandler.Card.Attack = RandomExtensions.RangeInclusive(_paramBoundaries.from, _paramBoundaries.to);
-                cardHandler.Card.Mana = RandomExtensions.RangeInclusive(_paramBoundaries.from, _paramBoundaries.to);
+                cardHandler.Card.Title = PickWords(_titleBoundaries.From, _titleBoundaries.To);
+                cardHandler.Card.Description = PickWords(_descrBoundaries.From, _descrBoundaries.To);
+                cardHandler.Card.Hp = RandomExtensions.RangeInclusive(_paramBoundaries.From, _paramBoundaries.To);
+                cardHandler.Card.Attack = RandomExtensions.RangeInclusive(_paramBoundaries.From, _paramBoundaries.To);
+                cardHandler.Card.Mana = RandomExtensions.RangeInclusive(_paramBoundaries.From, _paramBoundaries.To);
                 SetUpCardPortrait(cardHandler);
             }
 
             string PickWords(int from, int to)
             {
                 var take = RandomExtensions.RangeInclusive(from, to);
-                var skip = RandomExtensions.RangeInclusive(0, _words.Length - take - 1);
-                return string.Join(" ", _words.ToList().Skip(skip).Take(take));
+                var skip = RandomExtensions.RangeInclusive(0, Words.Length - take - 1);
+                return string.Join(" ", Words.ToList().Skip(skip).Take(take));
             }
 
             void ClearHand()
@@ -92,21 +104,18 @@ namespace CardsInHand.Scripts.ManageScene
                 }
 
                 _handContainer.DetachChildren();
-                children.ForEach(c => Destroy(c));
+                children.ForEach(Destroy);
                 children.Clear();
             }
 
             void SetUpCardPortrait(CardHandler cardHandler)
             {
-                var imageSize = cardHandler.GetPortraitSize();
-                var url = $"https://picsum.photos/{imageSize.width}/{imageSize.height}";
+                var (width, height) = cardHandler.GetPortraitSize();
+                var url = $"https://picsum.photos/{width}/{height}";
                 WebRequestProvider.GetTexture(
                     url,
-                    (err) => Debug.LogWarning(err),
-                    (tx2) =>
-                    {
-                        cardHandler.Card.Portrait = tx2;
-                    });
+                    Debug.LogWarning,
+                    (tx2) => cardHandler.Card.Portrait = tx2);
             }
 
         }

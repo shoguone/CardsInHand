@@ -10,7 +10,8 @@ namespace CardsInHand.Scripts.ManageScene
         [SerializeField]
         private Transform _handContainer;
 
-        private (int from, int to) _paramBoundaries = (-2, 9);
+        [SerializeField]
+        private ParamsInterval _paramBoundaries = new ParamsInterval(-2, 9);
 
         private int _lastChildIndex = -1;
 
@@ -39,7 +40,6 @@ namespace CardsInHand.Scripts.ManageScene
             else
             {
                 var param = (CardParameter)RandomExtensions.RangeInclusive((int)CardParameter.Hp, (int)CardParameter.Mana);
-                var value = RandomExtensions.RangeInclusive(_paramBoundaries.from, _paramBoundaries.to);
                 switch (param)
                 {
                     case CardParameter.Hp:
@@ -61,7 +61,7 @@ namespace CardsInHand.Scripts.ManageScene
             {
                 while (true)
                 {
-                    var value = RandomExtensions.RangeInclusive(_paramBoundaries.from, _paramBoundaries.to);
+                    var value = RandomExtensions.RangeInclusive(_paramBoundaries.From, _paramBoundaries.To);
                     if (current != value)
                     {
                         return value;
