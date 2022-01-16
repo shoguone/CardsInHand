@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using CardsInHand.Scripts.Entity;
+using CardsInHand.Scripts.Utility;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
@@ -63,9 +64,8 @@ namespace CardsInHand.Scripts.Game
 
         public Card Card { get => _card; set => _card = value; }
 
-
         public (int width, int height) GetPortraitSize() =>
-            GetRectTransformSize(_portraitImage.rectTransform);
+            RectTools.GetRectTransformSize(_portraitImage.rectTransform);
 
         public void Die()
         {
@@ -155,7 +155,8 @@ namespace CardsInHand.Scripts.Game
         {
             if (Card.Portrait != null)
             {
-                _portraitImage.sprite = Sprite.Create(Card.Portrait, CreateRectFromImage(_portraitImage), new Vector2(.5f, .5f));
+                _portraitImage.sprite = Sprite.Create(
+                    Card.Portrait, RectTools.CreateRectFromImage(_portraitImage), new Vector2(.5f, .5f));
             }
         }
 
@@ -208,7 +209,6 @@ namespace CardsInHand.Scripts.Game
 
         }
 
-
         private bool AssertReferences()
         {
             if (this == null)
@@ -229,18 +229,6 @@ namespace CardsInHand.Scripts.Game
             }
 
             return true;
-        }
-
-        private static (int width, int height) GetRectSize(Rect rect) =>
-            ((int)rect.width, (int)rect.height);
-
-        private static (int width, int height) GetRectTransformSize(RectTransform rectTransform) =>
-            GetRectSize(rectTransform.rect);
-
-        private static Rect CreateRectFromImage(Graphic image)
-        {
-            var (w, h) = GetRectTransformSize(image.rectTransform);
-            return new Rect(0, 0, w, h);
         }
     }
 }
