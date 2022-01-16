@@ -9,7 +9,7 @@ namespace CardsInHand.Scripts.Game
         IPointerDownHandler, IPointerUpHandler,
         IBeginDragHandler, IEndDragHandler, IDragHandler
     {
-        private CardHandler _cardHandler;
+        private BackgroundGlow _cardGlow;
         private RectTransform _cardTrf;
         private CanvasGroup _canvasGroup;
         private Canvas _canvas;
@@ -20,7 +20,7 @@ namespace CardsInHand.Scripts.Game
 
         private void Awake()
         {
-            _cardHandler = GetComponent<CardHandler>();
+            _cardGlow = GetComponent<BackgroundGlow>();
             _cardTrf = GetComponent<RectTransform>();
             _canvasGroup = GetComponent<CanvasGroup>();
 
@@ -65,7 +65,7 @@ namespace CardsInHand.Scripts.Game
             _startingRotation = _cardTrf.rotation.eulerAngles.z;
             _cardTrf.DORotateQuaternion(Quaternion.identity, .5f);
 
-            _cardHandler.Glow();
+            _cardGlow.Glow();
         }
 
         public void OnPointerUp(PointerEventData eventData)
@@ -86,7 +86,7 @@ namespace CardsInHand.Scripts.Game
                     .Join(_cardTrf.DORotateQuaternion(Quaternion.Euler(0, 0, _startingRotation), .5f));
             }
 
-            _cardHandler.Glow(false);
+            _cardGlow.Glow(false);
         }
     }
 }

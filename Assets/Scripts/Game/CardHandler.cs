@@ -32,9 +32,6 @@ namespace CardsInHand.Scripts.Game
         [SerializeField]
         private Image _portraitImage;
         
-        [SerializeField]
-        private GameObject _bgrGlowing;
-        
 
         [Header("Animation")]
         [SerializeField]
@@ -73,14 +70,6 @@ namespace CardsInHand.Scripts.Game
         public void Die()
         {
             Destroy(gameObject);
-        }
-
-        public void Glow(bool on = true)
-        {
-            if (_bgrGlowing != null)
-            {
-                _bgrGlowing.SetActive(on);
-            }
         }
 
 
